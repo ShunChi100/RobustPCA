@@ -1,3 +1,5 @@
+# Authors: Shun Chi (shunchi100@gmail.com)
+
 import numpy as np
 
 class StablePCA:
@@ -201,5 +203,3 @@ class StablePCA:
             The rank of low rank matrix
         '''
         return self.rank
-
-    
