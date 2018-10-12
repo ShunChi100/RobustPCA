@@ -2,7 +2,7 @@
 
 import numpy as np
 
-class StablePCA:
+class StablePCP:
     """Stable principal component pursuit (stable version of Robust PCA)
 
     Dimensionality reduction using Accelerated Proximal Gradient (APG)
