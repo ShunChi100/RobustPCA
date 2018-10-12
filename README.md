@@ -42,20 +42,22 @@ To install the package:
 pip install git+https://github.com/ShunChi100/RobustPCA
 ```
 
-Given `X` (features) and `y` (targets) as pandas dataframes, one can split the data with default test size `0.25` as the following:
+To use
 ```
-from CrossPy import *
-X_train, X_test, y_train, y_test = train_test_split(X, y)
-```
+from RobustPCA.rpca import RobustPCA
+from RobustPCA.spcp import StablePCP
 
-To do cross-validation on `X, y` using the `sklearn` `LinearRegression()` model:
+rpca = RobustPCA()
+spcp = StablePCP()
+
+rpca.fit(M)
+L = rpca.get_low_rank()
+S = rpca.get_sparse()
+
+spcp.fit(M)
+L = spcp.get_low_rank()
+S = spcp.get_sparse()
 ```
-lm = LinearRegression()
-scores = cross_validation(lm, X, y)
-```
-To see the summary of scores:
-```
-summary_cv(scores)
-```
+Here `L` and `S` are desired low rank matrix and sparse matrix.
 
 For more options of these functions, please see the documentation and source codes.
