@@ -1,6 +1,61 @@
 # Robust Principle Compoent Analysis
 
-Implimentation of robust principle component analysis and stable principle component pursuit based on the following references:
+Implimentation of robust principal component analysis and stable principal component pursuit based on the following references:
 
 * Candes, Emmanuel J. et al. "Robust Principal Component Analysis?" Journal of the ACM, Vol. 58, No. 3, Article 11, 2011.
 * Zhou, Zihan, et al. "Stable principal component pursuit." Information Theory Proceedings (ISIT), 2010 IEEE International Symposium on. IEEE, 2010.
+
+### Description
+The classical _Principal Component Analysis_ (PCA) is widely used for high-dimensional analysis and dimensionality reduction. Mathematically, if all the data points are stacked as column vectors of a (n, m)matrix $M$, PCA tries to decompose $M$ as
+
+$$M = L + S,$$
+
+where $L$ is a rank $k$ ($k<\min(n,m)$) matrix and $S$ is some perturbation/noise matrix. To obtain $L$, PCA solves the following optimization problem
+
+$$\min_{L} ||M-L||_2,$$
+
+given that rank($L$) <= $k$. However, the effectiveness of PCA relies on the asummption of the noise matrix $S$: $s_{i,j}$ is small and i.i.d. Gaussian. That means PCA is not robust to outliers in data $M$.
+
+To resolve this issue, Candes, Emmanuel J. et al proposed _Robust Principal Component Analysis_ (Robust PCA or RPCA). The objective is still trying to decompose $M$ into $L$ and $S$, but instead optimizing the following problem
+
+$$ \min_{L,S} ||L||_{*} + \lambda||S||_{1}$$
+
+subject to $L+S = M$.
+
+Minimizing the $l_1$-norm of $S$ is known to favor sparsity, while minimizing the
+nuclear norm of $L$ is known to favor low-rank matrices (sparsity of singular values). In this way, $M$ is decomposed to a low rank matrix but not sparse $L$ and a sparse but not low rank $S$. Here $S$ can be viewed as a sparse nosie matrix. Robust PCA allows the separation of sparse but outlying values from the original data.  
+
+In addition, Zhou et al. further proposed a "stable" version of Robust PCA, which is called _Stable Principal Component Pursuit_ (Stable PCP or SPCP), which allows a non-sparse Gaussian noise term $Z$ in addition to $L$ and $S$:
+
+$$M = L+S+Z.$$
+
+Stable PCP is intuitively more practical since it combines the strength of classical PCA and Robust PCA. However, depending on the exact problem, proper method should be selected.
+
+The drawback of Robust PCA and Stable PCP is their scalbility. They are generally slow since the implimentation do SVD (singular value decomposition) in the converging iterations. Recently, a new algorithm was proposed: "[Grassmann Averages](https://ieeexplore.ieee.org/document/6909882)" for Scalable Robust PCA.
+
+In this project, the original
+
+### Examples
+
+To install the package:
+```
+pip install git+https://github.com/ShunChi100/RobustPCA
+```
+
+Given `X` (features) and `y` (targets) as pandas dataframes, one can split the data with default test size `0.25` as the following:
+```
+from CrossPy import *
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+```
+
+To do cross-validation on `X, y` using the `sklearn` `LinearRegression()` model:
+```
+lm = LinearRegression()
+scores = cross_validation(lm, X, y)
+```
+To see the summary of scores:
+```
+summary_cv(scores)
+```
+
+For more options of these functions, please see the documentation and source codes.
