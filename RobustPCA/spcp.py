@@ -120,11 +120,12 @@ class StablePCP:
         # if lamb and mu are not set, set with default values
         if self.mu_fixed:
             self.mu0 = np.sqrt(2*np.max(size))*self.sigma
-            mu = self.mu0 * 1
-        if self.mu0==None:
+        
+        elif self.mu0==None:
             self.mu0 = np.min([self.mu0_init*np.sqrt(2*np.max(size)), 0.99*np.linalg.norm(M, 2)])
             self.mu_min = np.sqrt(2*np.max(size))*self.sigma
-            mu = self.mu0 * 1
+        mu = self.mu0 * 1
+
         if self.lamb==None:
             self.lamb = 1/np.sqrt(np.max(size))
 
