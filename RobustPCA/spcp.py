@@ -69,7 +69,7 @@ class StablePCP:
 
     """
 
-    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, sigma=1, eta = 0.9, tol=1e-6, max_iter=1000):
+    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, sigma=1, eta = 0.9, tol=1e-6, max_iter=100):
         self.lamb = lamb
         self.mu0 = mu0
         self.mu0_init = mu0_init
@@ -120,7 +120,7 @@ class StablePCP:
         # if lamb and mu are not set, set with default values
         if self.mu_fixed:
             self.mu0 = np.sqrt(2*np.max(size))*self.sigma
-        
+
         elif self.mu0==None:
             self.mu0 = np.min([self.mu0_init*np.sqrt(2*np.max(size)), 0.99*np.linalg.norm(M, 2)])
             self.mu_min = np.sqrt(2*np.max(size))*self.sigma
@@ -167,7 +167,7 @@ class StablePCP:
 
         # Print if the fit is converged
         if Etot > self.tol:
-            print('Not converged!')
+            print('Not converged within %d iterations!'%self.max_iter)
             print('Total error: %f, allowed tolerance: %f'%(Etot, self.tol))
             self.converged = False
         else:
