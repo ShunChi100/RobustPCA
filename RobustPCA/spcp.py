@@ -31,6 +31,9 @@ class StablePCP:
     mu_fixed : bool
         Flag for whether or not use a fixed mu for iterations
 
+    mu_min : positive float
+        minimum mu for thresholding
+
     sigma : positive float
         The standard deviation of the Gaussian noise N(0,sigma) for generating E
 
@@ -69,11 +72,12 @@ class StablePCP:
 
     """
 
-    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, sigma=1, eta = 0.9, tol=1e-6, max_iter=100):
+    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, tol=1e-6, max_iter=100):
         self.lamb = lamb
         self.mu0 = mu0
         self.mu0_init = mu0_init
         self.mu_fixed = mu_fixed
+        self.mu_min = mu_min
         self.sigma = sigma
         self.eta = eta
         self.tol = tol
@@ -123,7 +127,8 @@ class StablePCP:
 
         elif self.mu0==None:
             self.mu0 = np.min([self.mu0_init*np.sqrt(2*np.max(size)), 0.99*np.linalg.norm(M, 2)])
-            self.mu_min = np.sqrt(2*np.max(size))*self.sigma
+            if self.mu_min==None:
+                self.mu_min = np.sqrt(2*np.max(size))*self.sigma
 
         mu = self.mu0 * 1
 
