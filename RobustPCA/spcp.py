@@ -126,7 +126,6 @@ class StablePCP:
             self.mu_min = np.sqrt(2*np.max(size))*self.sigma
 
         mu = self.mu0 * 1
-        print(mu)
 
         if self.lamb==None:
             self.lamb = 1/np.sqrt(np.max(size))
