@@ -40,6 +40,11 @@ class StablePCP:
     eta : float
         Decay coefficient for thresholding, 0 < eta < 1
 
+    max_rank : positive int
+        The maximum rank allowed in the low rank matrix
+        default is None --> no limit to the rank of the low
+        rank matrix.
+
     tol : positive float
         Convergence criterion
 
@@ -72,7 +77,7 @@ class StablePCP:
 
     """
 
-    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, tol=1e-6, max_iter=100):
+    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, max_rank=None, tol=1e-6, max_iter=100):
         self.lamb = lamb
         self.mu0 = mu0
         self.mu0_init = mu0_init
@@ -80,6 +85,7 @@ class StablePCP:
         self.mu_min = mu_min
         self.sigma = sigma
         self.eta = eta
+        self.max_rank = max_rank
         self.tol = tol
         self.max_iter = max_iter
         self.converged = None
@@ -145,6 +151,12 @@ class StablePCP:
             u, s, vh = np.linalg.svd(GL, full_matrices=False)
             s = s[s>(mu/2)] - mu/2  # threshold by mu/2
             rank = len(s)
+
+            # Max rank cut
+            if self.max_rank:
+                if rank > self.max_rank:
+                    rank = self.max_rank*1
+                    s = s[0:rank]
 
             # update L1, L0
             L0 = L1

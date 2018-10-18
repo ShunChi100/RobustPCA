@@ -24,6 +24,11 @@ class RobustPCA:
             mu = n1*n2/4/norm1(M) # norm1(M) is M's l1-norm
         A effective default value from the reference.
 
+    max_rank : positive int
+        The maximum rank allowed in the low rank matrix
+        default is None --> no limit to the rank of the low
+        rank matrix.
+
     tol : positive float
         Convergence tolerance
 
@@ -50,9 +55,10 @@ class RobustPCA:
 
     """
 
-    def __init__(self, lamb=None, mu=None, tol=1e-6, max_iter = 10000):
+    def __init__(self, lamb=None, mu=None, max_rank=None, tol=1e-6, max_iter = 100):
         self.lamb = lamb
         self.mu = mu
+        self.max_rank = max_rank
         self.tol = tol
         self.max_iter = max_iter
         self.converged = None
@@ -99,6 +105,11 @@ class RobustPCA:
         s = s[s>tau] - tau
         rank = len(s)
 
+        if self.max_rank:
+            if rank > self.max_rank:
+                s = s[0:self.max_rank]
+                rank = self.max_rank*1
+
         # reconstruct thresholded 2D array
         return  np.dot(u[:, 0:rank] * s, vh[0:rank,:]), rank
 
@@ -136,7 +147,7 @@ class RobustPCA:
         # Alternating update
         for i in range(self.max_iter):
             L, rank = self.d_tau(M-S+1.0/self.mu*Y)
-            S= self.s_tau(M-L+1.0/self.mu*Y, self.lamb/self.mu)
+            S = self.s_tau(M-L+1.0/self.mu*Y, self.lamb/self.mu)
 
             # Calculate residuals
             residuals = M-L-S
