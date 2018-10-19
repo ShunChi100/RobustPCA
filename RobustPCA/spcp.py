@@ -165,11 +165,11 @@ class StablePCP:
             # singular value decomposition
             if self.use_fbpca:
                 if self.max_rank:
-                    (u, s, vh) = pca(X, self.max_rank, True, n_iter = 5)
+                    (u, s, vh) = pca(GL, self.max_rank, True, n_iter = 5)
                 else:
-                    (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True, n_iter = 5)
+                    (u, s, vh) = pca(GL, int(np.min(X.shape)*self.fbpca_rank_ratio), True, n_iter = 5)
             else:
-                u, s, vh = np.linalg.svd(X, full_matrices=False)
+                u, s, vh = np.linalg.svd(GL, full_matrices=False)
 
             s = s[s>(mu/2)] - mu/2  # threshold by mu/2
             rank = len(s)
