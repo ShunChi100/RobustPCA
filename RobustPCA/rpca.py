@@ -74,6 +74,7 @@ class RobustPCA:
         self.tol = tol
         self.max_iter = max_iter
         self.use_fbpca = use_fbpca
+        self.fbpca_rank_ratio = fbpca_rank_ratio
         self.converged = None
 
     def s_tau(self, X, tau):
@@ -113,9 +114,9 @@ class RobustPCA:
         # singular value decomposition
         if self.use_fbpca:
             if self.max_rank:
-                (u, s, vh) = pca(X, self.max_rank, True)
+                (u, s, vh) = pca(X, self.max_rank, True, n_iter = 5)
             else:
-                (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True)
+                (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True, n_iter = 5)
         else:
             u, s, vh = np.linalg.svd(X, full_matrices=False)
 

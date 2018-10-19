@@ -1,6 +1,10 @@
 # Authors: Shun Chi (shunchi100@gmail.com)
 
 import numpy as np
+try:
+    from fbpca import pca
+except ModuleNotFoundError:
+    print('\n install fbpca first: `pip install fbpca` \n')
 
 class StablePCP:
     """Stable principal component pursuit (stable version of Robust PCA)
@@ -97,6 +101,7 @@ class StablePCP:
         self.tol = tol
         self.max_iter = max_iter
         self.use_fbpca = use_fbpca
+        self.fbpca_rank_ratio = fbpca_rank_ratio
         self.converged = None
 
     def s_tau(self, X, tau):
@@ -160,12 +165,12 @@ class StablePCP:
             # singular value decomposition
             if self.use_fbpca:
                 if self.max_rank:
-                    (u, s, vh) = pca(X, self.max_rank, True)
+                    (u, s, vh) = pca(X, self.max_rank, True, n_iter = 5)
                 else:
-                    (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True)
+                    (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True, n_iter = 5)
             else:
                 u, s, vh = np.linalg.svd(X, full_matrices=False)
-                
+
             s = s[s>(mu/2)] - mu/2  # threshold by mu/2
             rank = len(s)
 
