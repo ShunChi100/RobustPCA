@@ -2,7 +2,7 @@
 
 import numpy as np
 try:
-    import fbpca
+    from fbpca import pca
 except ModuleNotFoundError:
     print('\n install fbpca first: `pip install fbpca` \n')
 
