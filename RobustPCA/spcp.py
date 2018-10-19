@@ -51,6 +51,14 @@ class StablePCP:
     max_iter : positive int
         Maximum iterations for alternating updates
 
+    use_fbpca : bool
+        Determine if use fbpca for SVD. fbpca use Fast Randomized SVDself.
+        default is False
+
+    fbpca_rank_ratio : float, between (0, 1]
+        If max_rank is not given, this sets the rank for fbpca.pca()
+        fbpca_rank = int(fbpca_rank_ratio * min(M.shape))
+
     Attributes:
     -----------
     L : 2D array
@@ -77,7 +85,7 @@ class StablePCP:
 
     """
 
-    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, max_rank=None, tol=1e-6, max_iter=100):
+    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, max_rank=None, tol=1e-6, max_iter=100, use_fbpca=False, fbpca_rank_ratio=0.2):
         self.lamb = lamb
         self.mu0 = mu0
         self.mu0_init = mu0_init
@@ -88,6 +96,7 @@ class StablePCP:
         self.max_rank = max_rank
         self.tol = tol
         self.max_iter = max_iter
+        self.use_fbpca = use_fbpca
         self.converged = None
 
     def s_tau(self, X, tau):
@@ -148,7 +157,15 @@ class StablePCP:
 
             # Thresdholding for updating L
             GL = YL - 0.5*(YL+YS-M)
-            u, s, vh = np.linalg.svd(GL, full_matrices=False)
+            # singular value decomposition
+            if self.use_fbpca:
+                if self.max_rank:
+                    (u, s, vh) = pca(X, self.max_rank, True)
+                else:
+                    (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True)
+            else:
+                u, s, vh = np.linalg.svd(X, full_matrices=False)
+                
             s = s[s>(mu/2)] - mu/2  # threshold by mu/2
             rank = len(s)
 
