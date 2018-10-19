@@ -1,6 +1,10 @@
 # Authors: Shun Chi (shunchi100@gmail.com)
 
 import numpy as np
+try:
+    import fbpca
+except ModuleNotFoundError:
+    print('\n install fbpca first: `pip install fbpca` \n')
 
 class RobustPCA:
     """Robust principal component analysis (Robust PCA)
@@ -9,7 +13,7 @@ class RobustPCA:
     to decompose the input 2D matrix M into a lower rank dense 2D matrix L and sparse
     but not low-rank 2D matrix S.
 
-    Parameters
+    Parametersfbpca.pca
     ----------
     lamb : positive float
         Sparse component coefficient.
@@ -35,6 +39,14 @@ class RobustPCA:
     max_iter : positive int
         Maximum iterations for alternating updates
 
+    use_fbpca : bool
+        Determine if use fbpca for SVD. fbpca use Fast Randomized SVDself.
+        default is False
+
+    fbpca_rank_ratio : float, between (0, 1]
+        If max_rank is not given, this sets the rank for fbpca.pca()
+        fbpca_rank = int(fbpca_rank_ratio * min(M.shape))
+
     Attributes:
     -----------
     L : 2D array
@@ -55,12 +67,13 @@ class RobustPCA:
 
     """
 
-    def __init__(self, lamb=None, mu=None, max_rank=None, tol=1e-6, max_iter = 100):
+    def __init__(self, lamb=None, mu=None, max_rank=None, tol=1e-6, max_iter=100, use_fbpca=False, fbpca_rank_ratio=0.2):
         self.lamb = lamb
         self.mu = mu
         self.max_rank = max_rank
         self.tol = tol
         self.max_iter = max_iter
+        self.use_fbpca = use_fbpca
         self.converged = None
 
     def s_tau(self, X, tau):
@@ -98,7 +111,13 @@ class RobustPCA:
         """
 
         # singular value decomposition
-        u, s, vh = np.linalg.svd(X, full_matrices=False)
+        if self.use_fbpca:
+            if self.max_rank:
+                (u, s, vh) = pca(X, self.max_rank, True)
+            else:
+                (u, s, vh) = pca(X, int(np.min(X.shape)*self.fbpca_rank_ratio), True)
+        else:
+            u, s, vh = np.linalg.svd(X, full_matrices=False)
 
         # Shrinkage of singular values
         tau = 1.0/self.mu
