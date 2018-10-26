@@ -74,6 +74,9 @@ class StablePCP:
     converged : bool
         Flag shows if the fit is converged or not
 
+    error : list
+        list of errors from iterations
+
 
     References
     ----------
@@ -89,7 +92,7 @@ class StablePCP:
 
     """
 
-    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, max_rank=None, tol=1e-6, max_iter=100, use_fbpca=False, fbpca_rank_ratio=0.2):
+    def __init__(self, lamb=None, mu0=None, mu0_init=1000, mu_fixed=False, mu_min=None, sigma=1, eta = 0.9, max_rank=None, tol=1e-6, max_iter=100, use_fbpca=False, fbpca_rank_ratio=0.2, verbsome=False):
         self.lamb = lamb
         self.mu0 = mu0
         self.mu0_init = mu0_init
@@ -103,6 +106,7 @@ class StablePCP:
         self.use_fbpca = use_fbpca
         self.fbpca_rank_ratio = fbpca_rank_ratio
         self.converged = None
+        self.error = []
 
     def s_tau(self, X, tau):
         """Shrinkage operator
@@ -202,6 +206,7 @@ class StablePCP:
             EA = 2*(YL-L1)+(L1+S1-YL-YS)
             ES = 2*(YS-S1)+(L1+S1-YL-YS)
             Etot = np.sqrt(np.linalg.norm(EA)**2+np.linalg.norm(ES)**2)
+            self.error.append(Etot)
             if Etot <= self.tol:
                 break
 

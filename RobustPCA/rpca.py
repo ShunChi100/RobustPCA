@@ -76,6 +76,7 @@ class RobustPCA:
         self.use_fbpca = use_fbpca
         self.fbpca_rank_ratio = fbpca_rank_ratio
         self.converged = None
+        self.error = []
 
     def s_tau(self, X, tau):
         """Shrinkage operator
@@ -172,6 +173,7 @@ class RobustPCA:
             # Calculate residuals
             residuals = M-L-S
             residuals_sum = np.sum(np.abs(residuals))
+            self.error.append(residuals_sum)
 
             # Check convergency
             if residuals_sum <= self.tol:
